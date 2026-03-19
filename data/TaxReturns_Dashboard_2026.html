@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GKM – Tax Returns Dashboard 2026</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f5f4f0; font-family: Calibri, Arial, sans-serif; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #eeece8; }
+    ::-webkit-scrollbar-thumb { background: #c5c0b8; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+    const FONT = "Calibri, Arial, sans-serif";
+
+    // ── RAW DATA ──────────────────────────────────────────────────────────────
+    const RAW_CLIENTS = [
+      { name:"Caleb Helms",            id:"CH",    conInd:51,  conBus:100, recInd:2,   recBus:51  },
+      { name:"Carlos Guaman",          id:"CG",    conInd:0,   conBus:400, recInd:0,   recBus:220 },
+      { name:"CCK Strategies",         id:"CCK",   conInd:30,  conBus:200, recInd:0,   recBus:127 },
+      { name:"CGA, LLP",               id:"CGA",   conInd:0,   conBus:0,   recInd:1,   recBus:0   },
+      { name:"CLE Consulting",         id:"CLE",   conInd:60,  conBus:40,  recInd:6,   recBus:3   },
+      { name:"Clever Taxes Elite",     id:"CTE",   conInd:60,  conBus:40,  recInd:8,   recBus:0   },
+      { name:"Craig Carr",             id:"CC",    conInd:65,  conBus:35,  recInd:0,   recBus:0   },
+      { name:"Dan P Vigilante",        id:"DPV",   conInd:200, conBus:0,   recInd:65,  recBus:1   },
+      { name:"DataMate Bookkeeping",   id:"DM",    conInd:115, conBus:70,  recInd:35,  recBus:55  },
+      { name:"Dave Adler",             id:"DA",    conInd:100, conBus:0,   recInd:20,  recBus:0   },
+      { name:"David A Turner",         id:"DT",    conInd:10,  conBus:10,  recInd:2,   recBus:0   },
+      { name:"Edison Tax",             id:"ET",    conInd:15,  conBus:10,  recInd:6,   recBus:8   },
+      { name:"Foster Financial",       id:"FF",    conInd:0,   conBus:150, recInd:0,   recBus:65  },
+      { name:"Friedman Huey",          id:"FH",    conInd:0,   conBus:200, recInd:0,   recBus:55  },
+      { name:"Greg Bourque",           id:"GB",    conInd:75,  conBus:75,  recInd:19,  recBus:15  },
+      { name:"Harvey Hoskins",         id:"HH",    conInd:75,  conBus:25,  recInd:1,   recBus:5   },
+      { name:"James Buss",             id:"JB",    conInd:100, conBus:50,  recInd:37,  recBus:0   },
+      { name:"Janette Davis",          id:"JLD",   conInd:0,   conBus:0,   recInd:0,   recBus:6   },
+      { name:"Jennifer Wu",            id:"JW",    conInd:250, conBus:40,  recInd:34,  recBus:16  },
+      { name:"Keith Adams",            id:"KA",    conInd:20,  conBus:10,  recInd:0,   recBus:0   },
+      { name:"Lana Koifman",           id:"LK",    conInd:500, conBus:0,   recInd:363, recBus:0   },
+      { name:"Marie Grasmeier",        id:"MJG",   conInd:200, conBus:125, recInd:11,  recBus:23  },
+      { name:"Mark Feinsot",           id:"MF",    conInd:80,  conBus:20,  recInd:0,   recBus:5   },
+      { name:"Matt Collins",           id:"COLL",  conInd:75,  conBus:75,  recInd:12,  recBus:36  },
+      { name:"Michael Green",          id:"MG",    conInd:300, conBus:0,   recInd:72,  recBus:0   },
+      { name:"Michael Spiegler",       id:"MS",    conInd:0,   conBus:100, recInd:0,   recBus:49  },
+      { name:"Nacho Mendoza",          id:"NM",    conInd:70,  conBus:80,  recInd:2,   recBus:9   },
+      { name:"Navarro Strategies",     id:"NS",    conInd:75,  conBus:55,  recInd:29,  recBus:35  },
+      { name:"Peter Bentley",          id:"PP",    conInd:300, conBus:200, recInd:0,   recBus:0   },
+      { name:"PotentE8",               id:"PE",    conInd:15,  conBus:40,  recInd:0,   recBus:32  },
+      { name:"Rick Lancaster",         id:"RL",    conInd:100, conBus:0,   recInd:0,   recBus:0   },
+      { name:"Rob Yackel",             id:"RY",    conInd:75,  conBus:20,  recInd:0,   recBus:0   },
+      { name:"Rob Reisenbeck",         id:"RR",    conInd:230, conBus:0,   recInd:20,  recBus:0   },
+      { name:"Robert Benkovich",       id:"RBN",   conInd:0,   conBus:0,   recInd:2,   recBus:0   },
+      { name:"Rodriguez CPA",          id:"SR",    conInd:20,  conBus:20,  recInd:1,   recBus:4   },
+      { name:"Roy Britto",             id:"RB",    conInd:0,   conBus:100, recInd:0,   recBus:22  },
+      { name:"Samatva Wealth Mgmt",    id:"SW",    conInd:80,  conBus:80,  recInd:66,  recBus:90  },
+      { name:"Shahzib Shahbaz",        id:"SHA",   conInd:8,   conBus:0,   recInd:5,   recBus:2   },
+      { name:"Shonty Spatola",         id:"SPA",   conInd:35,  conBus:15,  recInd:9,   recBus:0   },
+      { name:"Summers Gill",           id:"SG",    conInd:250, conBus:200, recInd:11,  recBus:11  },
+      { name:"Susanne Mariga",         id:"SM",    conInd:75,  conBus:55,  recInd:0,   recBus:1   },
+      { name:"TaxCo",                  id:"Taxco", conInd:120, conBus:480, recInd:37,  recBus:103 },
+      { name:"TKM Advisor",            id:"TKM",   conInd:0,   conBus:0,   recInd:0,   recBus:0   },
+      { name:"Wells Coleman",          id:"WC",    conInd:280, conBus:0,   recInd:74,  recBus:9   },
+      { name:"Yan Valdes",             id:"YV",    conInd:30,  conBus:300, recInd:0,   recBus:56  },
+      { name:"Dan Zigo",               id:"DZ",    conInd:50,  conBus:50,  recInd:0,   recBus:0   },
+      { name:"Malikah Anderson",       id:"MA",    conInd:10,  conBus:10,  recInd:0,   recBus:0   },
+      { name:"Michael Vergara",        id:"MV",    conInd:0,   conBus:22,  recInd:0,   recBus:0   },
+    ];
+
+    const FTE_DATA = [
+      { name:"Tony Mauro",    id:"TM",  type:"2 FTE",  recInd:0,   recBus:433 },
+      { name:"Lana Loomis",   id:"LL",  type:"3 FTE",  recInd:180, recBus:22  },
+      { name:"Marge Cook",    id:"MC",  type:"1 FTE",  recInd:128, recBus:15  },
+      { name:"Mark Hymer",    id:"MH",  type:"2 Prep", recInd:1,   recBus:4   },
+      { name:"Dushyant Lowe", id:"DL",  type:"FTE",    recInd:141, recBus:237 },
+    ];
+
+    // Computed columns
+    const CLIENTS = RAW_CLIENTS.map(c => {
+      const conTot = c.conInd + c.conBus;
+      const recTot = c.recInd + c.recBus;
+      const pending = conTot - recTot;
+      const rate = conTot > 0 ? recTot / conTot : null;
+      const overContracted = recTot > conTot;
+      return { ...c, conTot, recTot, pending, rate, overContracted };
+    }).filter(c => c.name !== "TKM Advisor" || c.conTot > 0 || c.recTot > 0);
+
+    const FTE = FTE_DATA.map(f => ({ ...f, recTot: f.recInd + f.recBus }));
+
+    // Totals
+    const TOT_CON_IND  = CLIENTS.reduce((s,c)=>s+c.conInd,0);
+    const TOT_CON_BUS  = CLIENTS.reduce((s,c)=>s+c.conBus,0);
+    const TOT_CON      = TOT_CON_IND + TOT_CON_BUS;
+    const TOT_REC_IND  = CLIENTS.reduce((s,c)=>s+c.recInd,0);
+    const TOT_REC_BUS  = CLIENTS.reduce((s,c)=>s+c.recBus,0);
+    const TOT_REC      = TOT_REC_IND + TOT_REC_BUS;
+    const TOT_PEND     = TOT_CON - TOT_REC;
+    const OVERALL_RATE = TOT_REC / TOT_CON;
+    const ACTIVE_CLIENTS = CLIENTS.filter(c => c.conTot > 0 || c.recTot > 0).length;
+    const ZERO_CLIENTS   = CLIENTS.filter(c => c.conTot > 0 && c.recTot === 0).length;
+    const OVER_CLIENTS   = CLIENTS.filter(c => c.overContracted).length;
+    const FTE_TOT        = FTE.reduce((s,f)=>s+f.recTot,0);
+
+    // Risk categories
+    const riskLabel = (c) => {
+      if (c.rate === null) return "Uncontracted";
+      if (c.rate === 0)    return "Not Started";
+      if (c.rate < 0.15)   return "Critical";
+      if (c.rate < 0.35)   return "At Risk";
+      if (c.rate < 0.60)   return "On Track";
+      return "Ahead";
+    };
+    const riskColor = (r) => ({
+      "Not Started":  { bg:"#fee2e2", text:"#b91c1c", bar:"#ef4444" },
+      "Critical":     { bg:"#fef9c3", text:"#92400e", bar:"#f59e0b" },
+      "At Risk":      { bg:"#ffedd5", text:"#c2410c", bar:"#f97316" },
+      "On Track":     { bg:"#dbeafe", text:"#1d4ed8", bar:"#3b82f6" },
+      "Ahead":        { bg:"#dcfce7", text:"#166534", bar:"#22c55e" },
+      "Uncontracted": { bg:"#f3e8ff", text:"#6d28d9", bar:"#8b5cf6" },
+    }[r] || { bg:"#f3f4f6", text:"#6b7280", bar:"#9ca3af" });
+
+    const fmt = (n) => n?.toLocaleString() ?? "—";
+    const pct = (n) => n === null ? "—" : (n*100).toFixed(1)+"%";
+
+    // ── MAIN COMPONENT ────────────────────────────────────────────────────────
+    function Dashboard() {
+      const [tab, setTab]           = useState("overview");
+      const [sortCol, setSortCol]   = useState("rate");
+      const [sortDir, setSortDir]   = useState("desc");
+      const [filter, setFilter]     = useState("All");
+      const [search, setSearch]     = useState("");
+      const [selected, setSelected] = useState(null);
+
+      const filterOpts = ["All","Not Started","Critical","At Risk","On Track","Ahead","Uncontracted"];
+
+      const sorted = useMemo(() => {
+        let rows = CLIENTS.filter(c => {
+          const matchFilter = filter === "All" || riskLabel(c) === filter;
+          const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) || c.id.toLowerCase().includes(search.toLowerCase());
+          return matchFilter && matchSearch;
+        });
+        rows = [...rows].sort((a,b) => {
+          let va = a[sortCol], vb = b[sortCol];
+          if (va === null) va = -Infinity;
+          if (vb === null) vb = -Infinity;
+          return sortDir === "asc" ? va - vb : vb - va;
+        });
+        return rows;
+      }, [sortCol, sortDir, filter, search]);
+
+      const handleSort = (col) => {
+        if (sortCol === col) setSortDir(d => d === "asc" ? "desc" : "asc");
+        else { setSortCol(col); setSortDir("desc"); }
+      };
+
+      const sel = selected !== null ? CLIENTS.find(c => c.id === selected) : null;
+
+      return (
+        <div style={{ minHeight:"100vh", background:"#f5f4f0", fontFamily:FONT }}>
+          <style>{`
+            .card { background:#fff; border:1px solid #e2deda; border-radius:12px; }
+            .card:hover { border-color:#c8c2ba; box-shadow:0 2px 10px rgba(0,0,0,.07); }
+            .kpi-card { background:#fff; border:1px solid #e2deda; border-radius:12px; padding:20px 22px; box-shadow:0 1px 4px rgba(0,0,0,.05); }
+            .tab-btn { padding:7px 18px; border-radius:7px; border:none; background:transparent; color:#6b7280; font-size:13px; font-family:Calibri,Arial,sans-serif; cursor:pointer; font-weight:500; transition:all 0.2s; }
+            .tab-btn.active { background:#2d3a4a; color:#fff; }
+            .filter-btn { padding:5px 13px; border-radius:20px; border:1px solid #d8d4ce; background:#fff; color:#6b7280; font-size:12px; font-family:Calibri,Arial,sans-serif; cursor:pointer; transition:all .2s; font-weight:500; }
+            .filter-btn:hover { border-color:#a8a29e; color:#374151; }
+            .filter-btn.active { background:#2d3a4a; border-color:#2d3a4a; color:#fff; }
+            .tr-h:hover { background:#f5f1ed !important; cursor:pointer; }
+            .prog-bar { height:7px; border-radius:4px; background:#e8e4de; overflow:hidden; }
+            .prog-fill { height:100%; border-radius:4px; transition:width .6s ease; }
+            .pill { display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:10px; font-size:11px; font-weight:600; font-family:Calibri,Arial,sans-serif; }
+            .sort-th { cursor:pointer; user-select:none; }
+            .sort-th:hover { color:#1e1b18; }
+          `}</style>
+
+          {/* ── HEADER ── */}
+          <div style={{ background:"#2d3a4a", borderBottom:"3px solid #1e2a36", padding:"20px 28px 18px" }}>
+            <div style={{ maxWidth:1400, margin:"0 auto", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+              <div>
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                  <div style={{ width:8, height:8, borderRadius:"50%", background:"#4ade80", boxShadow:"0 0 8px rgba(74,222,128,.5)" }} />
+                  <span style={{ fontSize:11, color:"#94a3b8", fontWeight:600, letterSpacing:".09em", textTransform:"uppercase" }}>2026 Tax Season</span>
+                </div>
+                <h1 style={{ fontSize:26, fontWeight:700, color:"#f5f4f0", margin:0 }}>Tax Returns — Contracted vs Received</h1>
+                <p style={{ margin:"4px 0 0", fontSize:13, color:"#94a3b8" }}>As of March 09, 2026 &nbsp;·&nbsp; {ACTIVE_CLIENTS} CPA Clients &nbsp;·&nbsp; {fmt(TOT_CON)} Total Contracted</p>
+              </div>
+              <div style={{ display:"flex", gap:4, background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.1)", borderRadius:10, padding:4 }}>
+                {[["overview","Overview"],["clients","Client Table"],["staff","Staff Workload"],["risk","Risk Flags"]].map(([id,lbl])=>(
+                  <button key={id} className={`tab-btn ${tab===id?"active":""}`} onClick={()=>setTab(id)}>{lbl}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ maxWidth:1400, margin:"0 auto", padding:"24px 28px" }}>
+
+            {/* ── KPI STRIP ── */}
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(6,1fr)", gap:14, marginBottom:24 }}>
+              {[
+                { label:"Total Contracted",   value:fmt(TOT_CON),              sub:"All clients combined",      accent:"#1d4ed8" },
+                { label:"Received to Date",   value:fmt(TOT_REC),              sub:`${pct(OVERALL_RATE)} receipt rate`, accent:"#166534" },
+                { label:"Still Outstanding",  value:fmt(TOT_PEND),             sub:"Returns yet to arrive",     accent:"#92400e" },
+                { label:"Individual Returns", value:fmt(TOT_REC_IND),          sub:`of ${fmt(TOT_CON_IND)} contracted`,  accent:"#4338ca" },
+                { label:"Business Returns",   value:fmt(TOT_REC_BUS),          sub:`of ${fmt(TOT_CON_BUS)} contracted`,  accent:"#0369a1" },
+                { label:"Not Yet Started",    value:ZERO_CLIENTS,              sub:"Clients at 0% receipt",     accent:"#b91c1c" },
+              ].map(k=>(
+                <div key={k.label} className="kpi-card">
+                  <div style={{ fontSize:10, color:"#9ca3af", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:8 }}>{k.label}</div>
+                  <div style={{ fontSize:34, fontWeight:700, color:k.accent, lineHeight:1, marginBottom:5, fontFamily:FONT }}>{k.value}</div>
+                  <div style={{ fontSize:11, color:"#9ca3af" }}>{k.sub}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* ── OVERVIEW TAB ── */}
+            {tab==="overview" && (
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 340px", gap:20 }}>
+                <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+
+                  {/* Season progress */}
+                  <div className="card" style={{ padding:22 }}>
+                    <div style={{ fontSize:15, fontWeight:700, color:"#1e1b18", marginBottom:4 }}>Season Progress</div>
+                    <div style={{ fontSize:12, color:"#9ca3af", marginBottom:16 }}>Overall receipt rate across all {ACTIVE_CLIENTS} contracted clients</div>
+                    <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:10 }}>
+                      <div style={{ flex:1, height:22, borderRadius:6, background:"#e8e4de", overflow:"hidden", position:"relative" }}>
+                        <div style={{ width:`${OVERALL_RATE*100}%`, height:"100%", background:"linear-gradient(90deg,#1d4ed8,#0ea5e9)", borderRadius:6, display:"flex", alignItems:"center", paddingLeft:8, transition:"width .8s ease" }}>
+                          <span style={{ fontSize:11, fontWeight:700, color:"#fff" }}>{pct(OVERALL_RATE)}</span>
+                        </div>
+                      </div>
+                      <span style={{ fontSize:13, color:"#6b7280", whiteSpace:"nowrap" }}>{fmt(TOT_REC)} / {fmt(TOT_CON)}</span>
+                    </div>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+                      {[
+                        { label:"Individual", received:TOT_REC_IND, contracted:TOT_CON_IND, color:"#4338ca" },
+                        { label:"Business",   received:TOT_REC_BUS, contracted:TOT_CON_BUS, color:"#0369a1" },
+                      ].map(g=>{
+                        const r = g.contracted>0 ? g.received/g.contracted : 0;
+                        return (
+                          <div key={g.label} style={{ background:"#faf9f6", borderRadius:8, padding:"14px 16px", border:"1px solid #e8e4de" }}>
+                            <div style={{ fontSize:11, color:g.color, fontWeight:700, textTransform:"uppercase", letterSpacing:".05em", marginBottom:8 }}>{g.label} Returns</div>
+                            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                              <span style={{ fontSize:22, fontWeight:700, color:"#1e1b18" }}>{fmt(g.received)}</span>
+                              <span style={{ fontSize:12, color:"#9ca3af" }}>of {fmt(g.contracted)}</span>
+                            </div>
+                            <div className="prog-bar"><div className="prog-fill" style={{ width:`${r*100}%`, background:g.color }} /></div>
+                            <div style={{ fontSize:11, color:g.color, fontWeight:600, marginTop:5 }}>{pct(r)} received</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Risk breakdown bars */}
+                  <div className="card" style={{ padding:22 }}>
+                    <div style={{ fontSize:15, fontWeight:700, color:"#1e1b18", marginBottom:4 }}>Client Receipt Rate Distribution</div>
+                    <div style={{ fontSize:12, color:"#9ca3af", marginBottom:18 }}>How clients are distributed across receipt rate buckets</div>
+                    {[
+                      { label:"Ahead (≥60%)",       clients:CLIENTS.filter(c=>c.rate>=.6),          desc:"Above 60% of contracted returns received" },
+                      { label:"On Track (35–60%)",   clients:CLIENTS.filter(c=>c.rate>=.35&&c.rate<.6), desc:"Solid progress" },
+                      { label:"At Risk (15–35%)",    clients:CLIENTS.filter(c=>c.rate>=.15&&c.rate<.35), desc:"Below expected pace" },
+                      { label:"Critical (<15%)",     clients:CLIENTS.filter(c=>c.rate!==null&&c.rate>0&&c.rate<.15), desc:"Very few returns received" },
+                      { label:"Not Started (0%)",    clients:CLIENTS.filter(c=>c.rate===0),          desc:"Zero returns received yet" },
+                      { label:"Uncontracted",        clients:CLIENTS.filter(c=>c.rate===null&&c.recTot>0), desc:"Sending without a contract" },
+                    ].map(b=>{
+                      const rl = riskLabel(b.clients[0]||{rate:-1});
+                      const rc = riskColor(b.label.startsWith("Ahead")?"Ahead":b.label.startsWith("On Track")?"On Track":b.label.startsWith("At Risk")?"At Risk":b.label.startsWith("Critical")?"Critical":b.label.startsWith("Not")?"Not Started":"Uncontracted");
+                      const w = (b.clients.length/ACTIVE_CLIENTS*100);
+                      return (
+                        <div key={b.label} style={{ marginBottom:12 }}>
+                          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+                            <span style={{ fontSize:13, fontWeight:500, color:"#374151" }}>{b.label}</span>
+                            <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                              <span style={{ fontSize:12, color:"#9ca3af" }}>{b.clients.length} client{b.clients.length!==1?"s":""}</span>
+                              {b.clients.length>0&&<span className="pill" style={{ background:rc.bg, color:rc.text }}>{Math.round(w)}%</span>}
+                            </div>
+                          </div>
+                          <div className="prog-bar"><div className="prog-fill" style={{ width:`${w}%`, background:rc.bar }} /></div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Top 10 by volume */}
+                  <div className="card" style={{ padding:22 }}>
+                    <div style={{ fontSize:15, fontWeight:700, color:"#1e1b18", marginBottom:4 }}>Top 10 Clients by Contracted Volume</div>
+                    <div style={{ fontSize:12, color:"#9ca3af", marginBottom:16 }}>Largest clients by total contracted returns, with current receipt progress</div>
+                    {[...CLIENTS].sort((a,b)=>b.conTot-a.conTot).slice(0,10).map((c,i)=>{
+                      const r = c.rate ?? 0;
+                      const rc = riskColor(riskLabel(c));
+                      return (
+                        <div key={c.id} style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
+                          <span style={{ fontSize:11, color:"#c8c2ba", width:18, textAlign:"right", flexShrink:0 }}>{i+1}</span>
+                          <span style={{ fontSize:13, color:"#1e1b18", fontWeight:600, width:190, flexShrink:0, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.name}</span>
+                          <div className="prog-bar" style={{ flex:1 }}><div className="prog-fill" style={{ width:`${r*100}%`, background:rc.bar }} /></div>
+                          <span style={{ fontSize:12, color:rc.text, fontWeight:700, width:44, textAlign:"right", flexShrink:0 }}>{pct(c.rate)}</span>
+                          <span style={{ fontSize:11, color:"#9ca3af", width:80, textAlign:"right", flexShrink:0 }}>{fmt(c.recTot)}/{fmt(c.conTot)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Right sidebar */}
+                <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+
+                  {/* Highlight cards */}
+                  <div className="card" style={{ padding:18 }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:"#1e1b18", marginBottom:12 }}>🏆 Top Performers</div>
+                    {[...CLIENTS].filter(c=>c.rate!==null&&c.conTot>=20).sort((a,b)=>b.rate-a.rate).slice(0,5).map(c=>(
+                      <div key={c.id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"7px 0", borderBottom:"1px solid #f3f0eb" }}>
+                        <span style={{ fontSize:12, color:"#374151", maxWidth:185, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.name}</span>
+                        <span className="pill" style={{ background:"#dcfce7", color:"#166534" }}>{pct(c.rate)}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="card" style={{ padding:18 }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:"#1e1b18", marginBottom:12 }}>⚠️ Zero Received</div>
+                    <div style={{ fontSize:11, color:"#9ca3af", marginBottom:10 }}>{ZERO_CLIENTS} clients with contracted returns but 0 received</div>
+                    {CLIENTS.filter(c=>c.rate===0&&c.conTot>0).sort((a,b)=>b.conTot-a.conTot).map(c=>(
+                      <div key={c.id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"6px 0", borderBottom:"1px solid #f3f0eb" }}>
+                        <span style={{ fontSize:12, color:"#374151", maxWidth:185, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.name}</span>
+                        <span className="pill" style={{ background:"#fee2e2", color:"#b91c1c" }}>{fmt(c.conTot)} due</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="card" style={{ padding:18 }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:"#1e1b18", marginBottom:12 }}>📋 Season Snapshot</div>
+                    {[
+                      { label:"Active CPA clients",       value:fmt(ACTIVE_CLIENTS) },
+                      { label:"Contracted Individual",    value:fmt(TOT_CON_IND) },
+                      { label:"Contracted Business",      value:fmt(TOT_CON_BUS) },
+                      { label:"Ind receipt rate",         value:pct(TOT_REC_IND/TOT_CON_IND) },
+                      { label:"Bus receipt rate",         value:pct(TOT_REC_BUS/TOT_CON_BUS) },
+                      { label:"Over-contracted clients",  value:OVER_CLIENTS },
+                      { label:"Staff returns received",   value:fmt(FTE_TOT) },
+                    ].map(r=>(
+                      <div key={r.label} style={{ display:"flex", justifyContent:"space-between", padding:"7px 0", borderBottom:"1px solid #f3f0eb" }}>
+                        <span style={{ fontSize:12, color:"#9ca3af" }}>{r.label}</span>
+                        <span style={{ fontSize:12, color:"#374151", fontWeight:600 }}>{r.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── CLIENT TABLE TAB ── */}
+            {tab==="clients" && (
+              <div>
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14, flexWrap:"wrap" }}>
+                  {filterOpts.map(f=>(
+                    <button key={f} className={`filter-btn ${filter===f?"active":""}`} onClick={()=>setFilter(f)}>{f}</button>
+                  ))}
+                  <div style={{ marginLeft:"auto", position:"relative" }}>
+                    <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search client…"
+                      style={{ padding:"6px 12px 6px 30px", borderRadius:7, border:"1px solid #d8d4ce", background:"#fff", fontSize:12, fontFamily:FONT, width:190, outline:"none", color:"#1e1b18" }} />
+                    <span style={{ position:"absolute", left:9, top:"50%", transform:"translateY(-50%)", color:"#a8a29e", fontSize:13 }}>⌕</span>
+                  </div>
+                  <span style={{ fontSize:12, color:"#9ca3af" }}>{sorted.length} clients</span>
+                </div>
+
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 320px", gap:16 }}>
+                  <div className="card" style={{ overflow:"hidden" }}>
+                    <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13, fontFamily:FONT }}>
+                      <thead>
+                        <tr style={{ background:"#2d3a4a" }}>
+                          {[
+                            ["#","",false],
+                            ["name","Client",true],
+                            ["conTot","Contracted",true],
+                            ["recTot","Received",true],
+                            ["pending","Pending",true],
+                            ["rate","Receipt %",true],
+                            ["conInd","Ind Con",true],
+                            ["recInd","Ind Rec",true],
+                            ["conBus","Bus Con",true],
+                            ["recBus","Bus Rec",true],
+                            ["risk","Status",false],
+                          ].map(([col,lbl,sortable])=>(
+                            <th key={col} className={sortable?"sort-th":""} onClick={sortable?()=>handleSort(col):undefined}
+                              style={{ padding:"10px 12px", textAlign:"left", color:"#f5f4f0", fontWeight:600, fontSize:11, textTransform:"uppercase", letterSpacing:".04em", whiteSpace:"nowrap" }}>
+                              {lbl}{sortable&&sortCol===col?(sortDir==="asc"?" ↑":" ↓"):""}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sorted.map((c,i)=>{
+                          const rl=riskLabel(c); const rc=riskColor(rl);
+                          return (
+                            <tr key={c.id} className="tr-h" onClick={()=>setSelected(selected===c.id?null:c.id)}
+                              style={{ borderBottom:"1px solid #ede9e4", background:selected===c.id?"#eef2ff":i%2===0?"#fff":"#faf8f5" }}>
+                              <td style={{ padding:"9px 12px", color:"#c8c2ba", fontSize:11 }}>{i+1}</td>
+                              <td style={{ padding:"9px 12px", color:"#1e1b18", fontWeight:600, maxWidth:170, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.name}</td>
+                              <td style={{ padding:"9px 12px", color:"#374151", textAlign:"right" }}>{fmt(c.conTot)}</td>
+                              <td style={{ padding:"9px 12px", color:"#166534", fontWeight:600, textAlign:"right" }}>{fmt(c.recTot)}</td>
+                              <td style={{ padding:"9px 12px", color:c.pending>50?"#92400e":"#374151", textAlign:"right" }}>{fmt(c.pending)}</td>
+                              <td style={{ padding:"9px 12px", textAlign:"right" }}>
+                                {c.rate!==null ? <span style={{ color:rc.text, fontWeight:700 }}>{pct(c.rate)}</span> : <span style={{ color:"#c8c2ba" }}>—</span>}
+                              </td>
+                              <td style={{ padding:"9px 12px", color:"#6b7280", textAlign:"right" }}>{fmt(c.conInd)}</td>
+                              <td style={{ padding:"9px 12px", color:"#4338ca", textAlign:"right" }}>{fmt(c.recInd)}</td>
+                              <td style={{ padding:"9px 12px", color:"#6b7280", textAlign:"right" }}>{fmt(c.conBus)}</td>
+                              <td style={{ padding:"9px 12px", color:"#0369a1", textAlign:"right" }}>{fmt(c.recBus)}</td>
+                              <td style={{ padding:"9px 12px" }}><span className="pill" style={{ background:rc.bg, color:rc.text }}>{rl}</span></td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                      <tfoot>
+                        <tr style={{ background:"#2d3a4a", borderTop:"2px solid #1e2a36" }}>
+                          <td colSpan={2} style={{ padding:"10px 12px", color:"#f5f4f0", fontWeight:700, fontSize:12 }}>TOTALS</td>
+                          <td style={{ padding:"10px 12px", color:"#f5f4f0", fontWeight:700, textAlign:"right" }}>{fmt(TOT_CON)}</td>
+                          <td style={{ padding:"10px 12px", color:"#4ade80", fontWeight:700, textAlign:"right" }}>{fmt(TOT_REC)}</td>
+                          <td style={{ padding:"10px 12px", color:"#fbbf24", fontWeight:700, textAlign:"right" }}>{fmt(TOT_PEND)}</td>
+                          <td style={{ padding:"10px 12px", color:"#4ade80", fontWeight:700, textAlign:"right" }}>{pct(OVERALL_RATE)}</td>
+                          <td style={{ padding:"10px 12px", color:"#94a3b8", textAlign:"right" }}>{fmt(TOT_CON_IND)}</td>
+                          <td style={{ padding:"10px 12px", color:"#a5b4fc", fontWeight:600, textAlign:"right" }}>{fmt(TOT_REC_IND)}</td>
+                          <td style={{ padding:"10px 12px", color:"#94a3b8", textAlign:"right" }}>{fmt(TOT_CON_BUS)}</td>
+                          <td style={{ padding:"10px 12px", color:"#7dd3fc", fontWeight:600, textAlign:"right" }}>{fmt(TOT_REC_BUS)}</td>
+                          <td></td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+
+                  {/* Detail panel */}
+                  <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
+                    {sel ? (
+                      <div className="card" style={{ padding:20 }}>
+                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:14 }}>
+                          <div>
+                            <div style={{ fontSize:15, fontWeight:700, color:"#1e1b18", marginBottom:6 }}>{sel.name}</div>
+                            <div style={{ display:"flex", gap:6 }}>
+                              <span className="pill" style={{ background:"#dbeafe", color:"#1d4ed8" }}>{sel.id}</span>
+                              {(()=>{ const rl=riskLabel(sel); const rc=riskColor(rl); return <span className="pill" style={{ background:rc.bg, color:rc.text }}>{rl}</span>; })()}
+                            </div>
+                          </div>
+                          <button onClick={()=>setSelected(null)} style={{ background:"#f3f0eb", border:"1px solid #e2deda", color:"#6b7280", cursor:"pointer", borderRadius:6, width:26, height:26, fontSize:15, display:"flex", alignItems:"center", justifyContent:"center" }}>×</button>
+                        </div>
+                        {/* receipt bar */}
+                        <div style={{ marginBottom:14 }}>
+                          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
+                            <span style={{ fontSize:12, color:"#9ca3af" }}>Overall Receipt</span>
+                            <span style={{ fontSize:13, fontWeight:700, color:"#1e1b18" }}>{pct(sel.rate)}</span>
+                          </div>
+                          {(()=>{ const rc=riskColor(riskLabel(sel)); return <div className="prog-bar" style={{ height:10 }}><div className="prog-fill" style={{ width:`${(sel.rate??0)*100}%`, background:rc.bar }} /></div>; })()}
+                        </div>
+                        {[
+                          ["Contracted Total",  fmt(sel.conTot)],
+                          ["Received Total",    fmt(sel.recTot)],
+                          ["Outstanding",       fmt(sel.pending)],
+                          ["Con Individual",    fmt(sel.conInd)],
+                          ["Rec Individual",    fmt(sel.recInd)],
+                          ["Con Business",      fmt(sel.conBus)],
+                          ["Rec Business",      fmt(sel.recBus)],
+                          ["Over-contracted",   sel.overContracted ? "Yes ⚠" : "No"],
+                        ].map(([l,v])=>(
+                          <div key={l} style={{ display:"flex", justifyContent:"space-between", padding:"7px 0", borderBottom:"1px solid #f0ece8" }}>
+                            <span style={{ fontSize:12, color:"#9ca3af" }}>{l}</span>
+                            <span style={{ fontSize:12, color:"#374151", fontWeight:600 }}>{v}</span>
+                          </div>
+                        ))}
+                        {/* Ind vs Bus mini bars */}
+                        <div style={{ marginTop:14 }}>
+                          <div style={{ fontSize:11, color:"#9ca3af", fontWeight:600, textTransform:"uppercase", letterSpacing:".05em", marginBottom:8 }}>Ind vs Bus Breakdown</div>
+                          {[["Individual",sel.recInd,sel.conInd,"#4338ca"],["Business",sel.recBus,sel.conBus,"#0369a1"]].map(([lbl,rec,con,col])=>(
+                            <div key={lbl} style={{ marginBottom:8 }}>
+                              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
+                                <span style={{ fontSize:11, color:"#6b7280" }}>{lbl}</span>
+                                <span style={{ fontSize:11, color:col, fontWeight:600 }}>{fmt(rec)} / {fmt(con)}</span>
+                              </div>
+                              <div className="prog-bar"><div className="prog-fill" style={{ width:`${con>0?(rec/con)*100:0}%`, background:col }} /></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="card" style={{ padding:20, textAlign:"center" }}>
+                        <div style={{ fontSize:28, marginBottom:8 }}>👆</div>
+                        <div style={{ fontSize:13, color:"#9ca3af" }}>Click any client row for detailed breakdown</div>
+                      </div>
+                    )}
+
+                    {/* Quick stats */}
+                    <div className="card" style={{ padding:18 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:"#1e1b18", marginBottom:10 }}>Filtered Summary</div>
+                      {[
+                        ["Showing",           sorted.length+" clients"],
+                        ["Contracted",        fmt(sorted.reduce((s,c)=>s+c.conTot,0))],
+                        ["Received",          fmt(sorted.reduce((s,c)=>s+c.recTot,0))],
+                        ["Avg receipt rate",  pct(sorted.length?sorted.reduce((s,c)=>s+(c.rate??0),0)/sorted.filter(c=>c.rate!==null).length:0)],
+                      ].map(([l,v])=>(
+                        <div key={l} style={{ display:"flex", justifyContent:"space-between", padding:"6px 0", borderBottom:"1px solid #f0ece8" }}>
+                          <span style={{ fontSize:12, color:"#9ca3af" }}>{l}</span>
+                          <span style={{ fontSize:12, color:"#374151", fontWeight:600 }}>{v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── STAFF WORKLOAD TAB ── */}
+            {tab==="staff" && (
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 340px", gap:20 }}>
+                <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+                  <div className="card" style={{ padding:22 }}>
+                    <div style={{ fontSize:15, fontWeight:700, color:"#1e1b18", marginBottom:4 }}>Staff Returns Received</div>
+                    <div style={{ fontSize:12, color:"#9ca3af", marginBottom:20 }}>Dedicated FTE/Prep staff workload as of March 09, 2026</div>
+                    {[...FTE].sort((a,b)=>b.recTot-a.recTot).map((f,i)=>{
+                      const maxV = Math.max(...FTE.map(x=>x.recTot));
+                      const indPct = f.recTot>0 ? (f.recInd/f.recTot)*100 : 0;
+                      const busPct = f.recTot>0 ? (f.recBus/f.recTot)*100 : 0;
+                      return (
+                        <div key={f.id} style={{ marginBottom:18, paddingBottom:18, borderBottom:"1px solid #f0ece8" }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:8 }}>
+                            <div style={{ width:34, height:34, borderRadius:8, background:"#f3f0eb", border:"1px solid #e2deda", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:700, color:"#6b7280", flexShrink:0 }}>{f.id}</div>
+                            <div style={{ flex:1 }}>
+                              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline" }}>
+                                <span style={{ fontSize:14, fontWeight:700, color:"#1e1b18" }}>{f.name}</span>
+                                <span style={{ fontSize:22, fontWeight:700, color:"#1d4ed8" }}>{fmt(f.recTot)}</span>
+                              </div>
+                              <div style={{ display:"flex", gap:8, marginTop:2 }}>
+                                <span className="pill" style={{ background:"#ede9fe", color:"#4338ca" }}>{f.type}</span>
+                                <span style={{ fontSize:11, color:"#9ca3af" }}>{fmt(f.recInd)} Ind · {fmt(f.recBus)} Bus</span>
+                              </div>
+                            </div>
+                          </div>
+                          {/* Stacked bar */}
+                          <div style={{ height:10, borderRadius:5, background:"#e8e4de", overflow:"hidden", display:"flex" }}>
+                            <div style={{ width:`${(f.recTot/maxV)*100}%`, height:"100%", display:"flex", overflow:"hidden", borderRadius:5 }}>
+                              <div style={{ width:`${indPct}%`, background:"#4338ca", height:"100%" }} />
+                              <div style={{ width:`${busPct}%`, background:"#0369a1", height:"100%" }} />
+                            </div>
+                          </div>
+                          <div style={{ display:"flex", gap:12, marginTop:5 }}>
+                            <div style={{ display:"flex", alignItems:"center", gap:4 }}><div style={{ width:8, height:8, borderRadius:2, background:"#4338ca" }}/><span style={{ fontSize:10, color:"#6b7280" }}>Individual: {fmt(f.recInd)}</span></div>
+                            <div style={{ display:"flex", alignItems:"center", gap:4 }}><div style={{ width:8, height:8, borderRadius:2, background:"#0369a1" }}/><span style={{ fontSize:10, color:"#6b7280" }}>Business: {fmt(f.recBus)}</span></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+                  <div className="card" style={{ padding:20 }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:"#1e1b18", marginBottom:14 }}>📊 Staff Totals</div>
+                    {[
+                      ["Total Received",     fmt(FTE.reduce((s,f)=>s+f.recTot,0))],
+                      ["Total Individual",   fmt(FTE.reduce((s,f)=>s+f.recInd,0))],
+                      ["Total Business",     fmt(FTE.reduce((s,f)=>s+f.recBus,0))],
+                      ["Staff Count",        FTE.length],
+                      ["Avg per Staff",      fmt(Math.round(FTE.reduce((s,f)=>s+f.recTot,0)/FTE.length))],
+                    ].map(([l,v])=>(
+                      <div key={l} style={{ display:"flex", justifyContent:"space-between", padding:"8px 0", borderBottom:"1px solid #f0ece8" }}>
+                        <span style={{ fontSize:12, color:"#9ca3af" }}>{l}</span>
+                        <span style={{ fontSize:13, color:"#1e1b18", fontWeight:700 }}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="card" style={{ padding:20 }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:"#1e1b18", marginBottom:10 }}>Business vs Individual Split</div>
+                    {(()=>{
+                      const totI = FTE.reduce((s,f)=>s+f.recInd,0);
+                      const totB = FTE.reduce((s,f)=>s+f.recBus,0);
+                      const tot = totI+totB;
+                      return (
+                        <div>
+                          <div style={{ display:"flex", height:16, borderRadius:8, overflow:"hidden", marginBottom:12 }}>
+                            <div style={{ width:`${(totI/tot)*100}%`, background:"#4338ca" }} />
+                            <div style={{ width:`${(totB/tot)*100}%`, background:"#0369a1" }} />
+                          </div>
+                          {[["Individual",totI,"#4338ca"],["Business",totB,"#0369a1"]].map(([lbl,v,col])=>(
+                            <div key={lbl} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"6px 0", borderBottom:"1px solid #f0ece8" }}>
+                              <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                                <div style={{ width:10, height:10, borderRadius:2, background:col }} />
+                                <span style={{ fontSize:12, color:"#374151" }}>{lbl}</span>
+                              </div>
+                              <span style={{ fontSize:12, fontWeight:600, color:col }}>{fmt(v)} ({pct(v/tot)})</span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── RISK FLAGS TAB ── */}
+            {tab==="risk" && (
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+
+                {/* Zero received — high contract */}
+                <div className="card" style={{ padding:22 }}>
+                  <div style={{ fontSize:15, fontWeight:700, color:"#b91c1c", marginBottom:4 }}>🔴 Zero Received — Highest Volume at Risk</div>
+                  <div style={{ fontSize:12, color:"#9ca3af", marginBottom:16 }}>These clients have contracted returns but none received yet</div>
+                  {CLIENTS.filter(c=>c.rate===0&&c.conTot>0).sort((a,b)=>b.conTot-a.conTot).map(c=>(
+                    <div key={c.id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"9px 12px", borderRadius:8, background:"#fef2f2", border:"1px solid #fecaca", marginBottom:8 }}>
+                      <div>
+                        <div style={{ fontSize:13, fontWeight:600, color:"#1e1b18" }}>{c.name}</div>
+                        <div style={{ fontSize:11, color:"#9ca3af", marginTop:1 }}>{fmt(c.conInd)} Ind · {fmt(c.conBus)} Bus</div>
+                      </div>
+                      <span className="pill" style={{ background:"#fee2e2", color:"#b91c1c" }}>{fmt(c.conTot)} due</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Critical < 15% */}
+                <div className="card" style={{ padding:22 }}>
+                  <div style={{ fontSize:15, fontWeight:700, color:"#92400e", marginBottom:4 }}>🟡 Critical — Under 15% Receipt Rate</div>
+                  <div style={{ fontSize:12, color:"#9ca3af", marginBottom:16 }}>Low receipt rate — follow-up recommended</div>
+                  {CLIENTS.filter(c=>c.rate!==null&&c.rate>0&&c.rate<.15).sort((a,b)=>b.conTot-a.conTot).map(c=>(
+                    <div key={c.id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"9px 12px", borderRadius:8, background:"#fffbeb", border:"1px solid #fde68a", marginBottom:8 }}>
+                      <div>
+                        <div style={{ fontSize:13, fontWeight:600, color:"#1e1b18" }}>{c.name}</div>
+                        <div style={{ fontSize:11, color:"#9ca3af", marginTop:1 }}>{fmt(c.recTot)} received of {fmt(c.conTot)}</div>
+                      </div>
+                      <span className="pill" style={{ background:"#fef9c3", color:"#92400e" }}>{pct(c.rate)}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Over-contracted anomalies */}
+                <div className="card" style={{ padding:22 }}>
+                  <div style={{ fontSize:15, fontWeight:700, color:"#6d28d9", marginBottom:4 }}>🔵 Over-Delivered / Uncontracted</div>
+                  <div style={{ fontSize:12, color:"#9ca3af", marginBottom:16 }}>Clients sending more returns than contracted or with no contract</div>
+                  {CLIENTS.filter(c=>c.overContracted||(c.rate===null&&c.recTot>0)).map(c=>(
+                    <div key={c.id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"9px 12px", borderRadius:8, background:"#f5f3ff", border:"1px solid #ddd6fe", marginBottom:8 }}>
+                      <div>
+                        <div style={{ fontSize:13, fontWeight:600, color:"#1e1b18" }}>{c.name} <span style={{ fontSize:11, color:"#9ca3af" }}>({c.id})</span></div>
+                        <div style={{ fontSize:11, color:"#9ca3af", marginTop:1 }}>Contracted: {fmt(c.conTot)} · Received: {fmt(c.recTot)}</div>
+                      </div>
+                      <span className="pill" style={{ background:"#ede9fe", color:"#6d28d9" }}>
+                        {c.rate===null ? "No contract" : `+${fmt(c.recTot-c.conTot)}`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Top performers */}
+                <div className="card" style={{ padding:22 }}>
+                  <div style={{ fontSize:15, fontWeight:700, color:"#166534", marginBottom:4 }}>🟢 Ahead of Schedule (≥60%)</div>
+                  <div style={{ fontSize:12, color:"#9ca3af", marginBottom:16 }}>Clients who have delivered 60% or more of contracted returns</div>
+                  {CLIENTS.filter(c=>c.rate!==null&&c.rate>=.6).sort((a,b)=>b.rate-a.rate).map(c=>(
+                    <div key={c.id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"9px 12px", borderRadius:8, background:"#f0fdf4", border:"1px solid #bbf7d0", marginBottom:8 }}>
+                      <div>
+                        <div style={{ fontSize:13, fontWeight:600, color:"#1e1b18" }}>{c.name}</div>
+                        <div style={{ fontSize:11, color:"#9ca3af", marginTop:1 }}>{fmt(c.recTot)} of {fmt(c.conTot)} received</div>
+                      </div>
+                      <span className="pill" style={{ background:"#dcfce7", color:"#166534" }}>{pct(c.rate)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<Dashboard />);
+  </script>
+</body>
+</html>

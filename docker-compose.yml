@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: gkm
+      POSTGRES_PASSWORD: gkm
+      POSTGRES_DB: gkm
+    ports:
+      - "5432:5432"
+    volumes:
+      - gkm_pgdata:/var/lib/postgresql/data
+
+volumes:
+  gkm_pgdata:
