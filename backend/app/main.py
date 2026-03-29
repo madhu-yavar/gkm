@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import models
 from app.db import engine, session_scope
-from app.routers import auth, dashboard, documents, snapshots
+from app.routers import analysis_sets, auth, dashboard, documents, reports, snapshots
 from app.security import hash_password
 from app.settings import settings
 
@@ -41,7 +41,9 @@ def create_app() -> FastAPI:
     app.include_router(auth.router)
     app.include_router(documents.router)
     app.include_router(snapshots.router)
+    app.include_router(analysis_sets.router)
     app.include_router(dashboard.router)
+    app.include_router(reports.router)
 
     @app.get("/health")
     def health():

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { useApi } from '../api'
+import { useApi, type DashboardBlueprintResponse, type DashboardRuntimeResponse } from '../api'
 
 export type Snapshot = { id: number; as_of_date: string; source_filename: string }
 
@@ -51,10 +51,13 @@ type DashboardDataContextValue = {
   kpis: Kpis | null
   clients: ClientRow[]
   staff: StaffRow[]
+  blueprint: DashboardBlueprintResponse | null
+  runtime: DashboardRuntimeResponse | null
   loading: boolean
   error: string | null
   refreshSnapshots: () => Promise<void>
   refreshDashboard: (nextSnapshotId?: number | undefined) => Promise<void>
+  refreshBlueprint: (nextSnapshotId?: number | undefined) => Promise<void>
 }
 
 const DashboardDataContext = createContext<DashboardDataContextValue | undefined>(undefined)
@@ -66,6 +69,8 @@ export function DashboardDataProvider({ children }: { children: React.ReactNode 
   const [kpis, setKpis] = useState<Kpis | null>(null)
   const [clients, setClients] = useState<ClientRow[]>([])
   const [staff, setStaff] = useState<StaffRow[]>([])
+  const [blueprint, setBlueprint] = useState<DashboardBlueprintResponse | null>(null)
+  const [runtime, setRuntime] = useState<DashboardRuntimeResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -92,7 +97,13 @@ export function DashboardDataProvider({ children }: { children: React.ReactNode 
       setKpis(null)
       setClients([])
       setStaff([])
+      setBlueprint(null)
+      setRuntime(null)
       return
+    }
+
+    if (nextSnapshotId !== undefined && nextSnapshotId !== snapshotId) {
+      setSnapshotId(nextSnapshotId)
     }
 
     setLoading(true)
@@ -103,14 +114,42 @@ export function DashboardDataProvider({ children }: { children: React.ReactNode 
         api.listClients(effectiveSnapshotId),
         api.listStaff(effectiveSnapshotId),
       ])
+      let nextBlueprint: DashboardBlueprintResponse | null = null
+      let nextRuntime: DashboardRuntimeResponse | null = null
+      try {
+        nextBlueprint = await api.getDashboardBlueprint(effectiveSnapshotId)
+      } catch {
+        nextBlueprint = null
+      }
+      try {
+        nextRuntime = await api.getDashboardRuntime(effectiveSnapshotId)
+      } catch {
+        nextRuntime = null
+      }
       setKpis(nextKpis)
       setClients(nextClients)
       setStaff(nextStaff)
+      setBlueprint(nextBlueprint)
+      setRuntime(nextRuntime)
     } catch {
       setError('Failed to load dashboard. Upload an Excel snapshot first.')
     } finally {
       setLoading(false)
     }
+  }
+
+  async function refreshBlueprint(nextSnapshotId?: number | undefined) {
+    const effectiveSnapshotId = nextSnapshotId ?? snapshotId
+    if (!effectiveSnapshotId) {
+      setBlueprint(null)
+      setRuntime(null)
+      return
+    }
+    if (nextSnapshotId !== undefined && nextSnapshotId !== snapshotId) {
+      setSnapshotId(nextSnapshotId)
+    }
+    const nextBlueprint = await api.getDashboardBlueprint(effectiveSnapshotId)
+    setBlueprint(nextBlueprint)
   }
 
   useEffect(() => {
@@ -132,10 +171,13 @@ export function DashboardDataProvider({ children }: { children: React.ReactNode 
         kpis,
         clients,
         staff,
+        blueprint,
+        runtime,
         loading,
         error,
         refreshSnapshots,
         refreshDashboard,
+        refreshBlueprint,
       }}
     >
       {children}

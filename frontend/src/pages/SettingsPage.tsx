@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { GeminiModel } from '../geminiSettings'
 import { loadGeminiSettings, saveGeminiSettings } from '../geminiSettings'
+import { Settings2, Key, Cpu, CheckCircle2, Sparkles } from 'lucide-react'
 
 export function SettingsPage() {
   const initial = useMemo(() => loadGeminiSettings(), [])
@@ -10,93 +11,82 @@ export function SettingsPage() {
   const [saved, setSaved] = useState<string | null>(null)
 
   return (
-    <div style={{ maxWidth: 980, margin: '0 auto' }}>
-      <div style={{ fontSize: 20, fontWeight: 900, marginBottom: 6 }}>Settings</div>
-      <div style={{ fontSize: 12, color: 'var(--muted)' }}>Configure processing providers and defaults.</div>
+    <div className="max-w-[980px] mx-auto animate-fade-in">
+      {/* Page Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="grid place-items-center w-10 h-10 rounded-xl bg-primary/10 text-primary">
+          <Settings2 className="w-5 h-5" />
+        </div>
+        <div>
+          <h1 className="text-xl font-black text-foreground">Settings</h1>
+          <p className="text-xs text-muted-foreground">Configure processing providers and defaults.</p>
+        </div>
+      </div>
 
-      <div style={{ marginTop: 14, background: 'white', border: '1px solid var(--border)', borderRadius: 14, padding: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 900 }}>Gemini (optional)</div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-              Your API key is stored <b>only in your browser</b> (localStorage) and sent to the backend via request headers when enabled.
+      {/* Gemini Settings Card */}
+      <div className="bg-card border border-border rounded-2xl p-6 shadow-soft">
+        <div className="flex justify-between gap-4 items-start flex-wrap">
+          <div className="flex items-start gap-3">
+            <div className="grid place-items-center w-10 h-10 rounded-xl bg-accent text-accent-foreground shrink-0 mt-0.5">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-black text-foreground">Gemini (optional)</h2>
+              <p className="text-xs text-muted-foreground mt-1 max-w-md">
+                Your API key is stored <strong>only in your browser</strong> (localStorage) and sent to the backend via request headers when enabled.
+              </p>
             </div>
           </div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 800, color: 'var(--muted)' }}>
-            <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />
+          <label className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground cursor-pointer select-none">
+            <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="accent-primary w-4 h-4" />
             Enable Gemini processing
           </label>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 240px', gap: 12, marginTop: 14 }}>
+        <div className="grid grid-cols-[1fr_240px] max-md:grid-cols-1 gap-4 mt-5">
           <div>
-            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--muted)', marginBottom: 6 }}>Gemini API Key</div>
-            <input
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="AIza..."
+            <label className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground mb-2">
+              <Key className="w-3.5 h-3.5" /> Gemini API Key
+            </label>
+            <input value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="AIza..."
               type="password"
-              style={{ width: '100%', borderRadius: 10, border: '1px solid var(--border)', padding: '10px 12px', outline: 'none' }}
-            />
+              className="w-full rounded-xl border border-border px-3.5 py-2.5 bg-card text-foreground outline-none focus:border-primary/50 transition text-sm" />
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--muted)', marginBottom: 6 }}>Model</div>
-            <select
-              value={model}
-              onChange={(e) => setModel(e.target.value as GeminiModel)}
-              style={{ width: '100%', borderRadius: 10, border: '1px solid var(--border)', padding: '10px 12px', outline: 'none', background: 'white', fontWeight: 800 }}
-            >
+            <label className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground mb-2">
+              <Cpu className="w-3.5 h-3.5" /> Model
+            </label>
+            <select value={model} onChange={(e) => setModel(e.target.value as GeminiModel)}
+              className="w-full rounded-xl border border-border px-3.5 py-2.5 bg-card text-foreground font-bold outline-none focus:border-primary/50 transition text-sm">
               <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
               <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-              <option value="gemini-3">Gemini 3</option>
             </select>
           </div>
         </div>
 
         {saved && (
-          <div style={{ marginTop: 12, fontSize: 12, background: '#ecfdf5', border: '1px solid #bbf7d0', color: '#166534', padding: 10, borderRadius: 10 }}>
-            {saved}
+          <div className="mt-4 flex items-center gap-2 bg-success/10 border border-success/30 text-success px-4 py-2.5 rounded-xl text-xs font-semibold animate-fade-in">
+            <CheckCircle2 className="w-4 h-4" /> {saved}
           </div>
         )}
 
-        <div style={{ marginTop: 14, display: 'flex', gap: 10 }}>
-          <button
-            onClick={() => {
-              saveGeminiSettings({ enabled, apiKey, model })
-              setSaved('Saved. New uploads can use Gemini if you enable it on the Documents Processing screen.')
-              setTimeout(() => setSaved(null), 3500)
-            }}
-            style={{
-              borderRadius: 10,
-              border: '1px solid transparent',
-              background: 'var(--brand)',
-              color: 'white',
-              padding: '10px 14px',
-              fontWeight: 900,
-              cursor: 'pointer',
-            }}
-          >
+        <div className="mt-5 flex gap-3">
+          <button onClick={() => {
+            saveGeminiSettings({ enabled, apiKey, model })
+            setSaved('Saved. New uploads can use Gemini if you enable it on the Documents Processing screen.')
+            setTimeout(() => setSaved(null), 3500)
+          }}
+            className="px-5 py-2.5 rounded-xl font-extrabold text-primary-foreground transition hover:opacity-90"
+            style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--brand-glow)))' }}>
             Save
           </button>
-          <button
-            onClick={() => {
-              setEnabled(false)
-              setApiKey('')
-              setModel('gemini-2.5-flash')
-              saveGeminiSettings({ enabled: false, apiKey: '', model: 'gemini-2.5-flash' })
-              setSaved('Cleared.')
-              setTimeout(() => setSaved(null), 2500)
-            }}
-            style={{
-              borderRadius: 10,
-              border: '1px solid var(--border)',
-              background: 'white',
-              color: 'var(--muted)',
-              padding: '10px 14px',
-              fontWeight: 900,
-              cursor: 'pointer',
-            }}
-          >
+          <button onClick={() => {
+            setEnabled(false); setApiKey(''); setModel('gemini-2.5-flash')
+            saveGeminiSettings({ enabled: false, apiKey: '', model: 'gemini-2.5-flash' })
+            setSaved('Cleared.')
+            setTimeout(() => setSaved(null), 2500)
+          }}
+            className="px-5 py-2.5 rounded-xl font-extrabold border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-accent transition">
             Clear
           </button>
         </div>
@@ -104,4 +94,3 @@ export function SettingsPage() {
     </div>
   )
 }
-

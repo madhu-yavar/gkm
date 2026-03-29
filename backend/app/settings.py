@@ -13,5 +13,10 @@ class Settings(BaseSettings):
     seed_admin_email: str = "admin@example.com"
     seed_admin_password: str = "admin1234"
 
+    report_agent_enabled: bool = False
+    openai_api_key: str | None = None
+    report_agent_model: str = "gpt-5"
+    report_agent_reasoning_effort: str = "medium"
+
 
 settings = Settings()

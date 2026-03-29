@@ -27,7 +27,7 @@ export type AssistantAnswer = {
   cards?: Array<{
     title: string
     value: string
-    meta?: string
+    meta?: string | null
   }>
   bullets?: string[]
 }

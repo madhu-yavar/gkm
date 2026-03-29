@@ -11,116 +11,62 @@ export function LoginPage() {
   const [password, setPassword] = useState('admin1234')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
   const canSubmit = useMemo(() => email.trim().length > 0 && password.length > 0 && !loading, [email, password, loading])
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', height: '100%' }}>
-      <div
-        style={{
-          background: 'radial-gradient(1200px 600px at 20% 20%, #7c3aed 0%, #111827 65%, #0b1020 100%)',
-          color: 'white',
-          padding: 44,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-        }}
-      >
-        <div style={{ fontWeight: 900, fontSize: 22, opacity: 0.9, marginBottom: 18 }}>yavar</div>
-        <div style={{ fontSize: 40, fontWeight: 900, lineHeight: 1.05, maxWidth: 520 }}>
+    <div className="grid grid-cols-[1.2fr_1fr] h-full max-md:grid-cols-1">
+      {/* Left — Brand Panel */}
+      <div className="gradient-header flex flex-col justify-end p-10 text-primary-foreground max-md:hidden"
+        style={{ background: 'radial-gradient(1200px 600px at 20% 20%, hsl(var(--primary)) 0%, hsl(220,30%,12%) 65%, hsl(230,25%,8%) 100%)' }}>
+        <div className="font-black text-xl opacity-90 mb-5 tracking-wide">yavar</div>
+        <h1 className="text-[2.5rem] font-black leading-[1.05] max-w-[520px]">
           Power Your Workflow with Agentic AI
-        </div>
-        <div style={{ marginTop: 10, opacity: 0.85, maxWidth: 520 }}>
-          GKM platform helps ingest documents, redact sensitive fields, and generate dynamic analytics for tax outsourcing
-          engagements.
-        </div>
+        </h1>
+        <p className="mt-3 opacity-80 max-w-[520px] text-base leading-relaxed">
+          GKM platform helps ingest documents, redact sensitive fields, and generate dynamic analytics for tax outsourcing engagements.
+        </p>
       </div>
 
-      <div style={{ background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 28 }}>
-        <div style={{ width: 420, maxWidth: '100%' }}>
-          <div style={{ fontSize: 28, fontWeight: 900, marginBottom: 4 }}>Welcome</div>
-          <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 22 }}>Please enter login details below</div>
+      {/* Right — Login Form */}
+      <div className="bg-card flex items-center justify-center p-7">
+        <div className="w-[420px] max-w-full animate-fade-in">
+          <h2 className="text-3xl font-black text-foreground mb-1">Welcome</h2>
+          <p className="text-sm text-muted-foreground mb-6">Please enter login details below</p>
 
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: 'var(--muted)' }}>
-            Email
-          </label>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@company.com"
-            style={{
-              width: '100%',
-              borderRadius: 8,
-              border: '1px solid var(--border)',
-              padding: '10px 12px',
-              outline: 'none',
-              marginBottom: 14,
-            }}
-          />
+          <label className="block text-xs font-bold text-muted-foreground mb-1.5">Email</label>
+          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com"
+            className="w-full rounded-lg border border-border px-3 py-2.5 text-foreground bg-card outline-none focus:border-primary/50 transition mb-4" />
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: 'var(--muted)' }}>
-              Password
-            </label>
-            <span style={{ fontSize: 12, color: 'var(--brand)', fontWeight: 700 }}>Forgot Password?</span>
+          <div className="flex justify-between items-baseline mb-1.5">
+            <label className="text-xs font-bold text-muted-foreground">Password</label>
+            <span className="text-xs text-primary font-bold cursor-pointer hover:underline">Forgot Password?</span>
           </div>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            style={{
-              width: '100%',
-              borderRadius: 8,
-              border: '1px solid var(--border)',
-              padding: '10px 12px',
-              outline: 'none',
-              marginBottom: 12,
-            }}
-          />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password"
+            className="w-full rounded-lg border border-border px-3 py-2.5 text-foreground bg-card outline-none focus:border-primary/50 transition mb-3" />
 
           {error && (
-            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', padding: 10, borderRadius: 8, marginBottom: 12, fontSize: 12 }}>
+            <div className="bg-destructive/10 border border-destructive/30 text-destructive px-3 py-2.5 rounded-lg mb-3 text-xs font-semibold animate-fade-in">
               {error}
             </div>
           )}
 
-          <button
-            disabled={!canSubmit}
+          <button disabled={!canSubmit}
             onClick={async () => {
-              setError(null)
-              setLoading(true)
-              try {
-                const res = await api.login(email, password)
-                setToken(res.access_token)
-                nav('/dashboard')
-              } catch (e: any) {
-                setError('Login failed. Check credentials and backend connectivity.')
-              } finally {
-                setLoading(false)
-              }
+              setError(null); setLoading(true)
+              try { const res = await api.login(email, password); setToken(res.access_token); nav('/dashboard') }
+              catch { setError('Login failed. Check credentials and backend connectivity.') }
+              finally { setLoading(false) }
             }}
-            style={{
-              width: '100%',
-              borderRadius: 10,
-              border: '1px solid transparent',
-              background: '#b794f4',
-              color: 'white',
-              padding: '11px 12px',
-              fontWeight: 800,
-              cursor: canSubmit ? 'pointer' : 'not-allowed',
-              opacity: canSubmit ? 1 : 0.6,
-            }}
-          >
+            className="w-full rounded-xl py-3 font-extrabold text-primary-foreground transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 hover:shadow-elevated"
+            style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--brand-glow)))' }}>
             {loading ? 'Logging in…' : 'Login'}
           </button>
 
-          <div style={{ marginTop: 12, fontSize: 11, color: 'var(--muted)' }}>
-            Default seed user comes from backend `.env` (see `backend/.env.example`).
-          </div>
+          <p className="mt-3 text-[0.7rem] text-muted-foreground">
+            Default seed user comes from backend <code className="bg-secondary px-1 py-0.5 rounded text-xs">.env</code>
+          </p>
         </div>
       </div>
     </div>
   )
 }
-

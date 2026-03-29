@@ -18,3 +18,26 @@ frontend/dist/
 # Editor / OS
 .idea/
 .vscode/
+
+# Local agent/editor metadata
+.claude/
+CLAUDE.md
+
+# Office temp files
+~$*
+
+# Root-level local data drops
+/*.xlsx
+/*.xls
+/*.csv
+/*.pdf
+/*.zip
+/package-lock.json
+
+# Local data and report artifacts
+data/**
+!data/
+
+# Keep architecture/reference markdown, but ignore source office docs in BRD
+FRA Application/**/*.docx
+FRA Application/**/*.pdf
